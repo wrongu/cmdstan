@@ -13,14 +13,9 @@ $(STANC_TEMPLATE_INSTANTIATION) : bin/cmdstan/%.o : $(STAN)src/stan/%.cpp
 	@mkdir -p $(dir $@)
 	$(COMPILE.cpp) $(OUTPUT_OPTION) $<
 
-bin/stanc$(EXE) : O = $(O_STANC)
-bin/stanc$(EXE) : CPPFLAGS_MPI =
-bin/stanc$(EXE) : LDFLAGS_MPI =
-bin/stanc$(EXE) : LDLIBS_MPI =
-bin/stanc$(EXE) : bin/cmdstan/libstanc.a
-bin/stanc$(EXE) : bin/cmdstan/stanc.o
-	@mkdir -p $(dir $@)
-	$(LINK.cpp) $^ $(LDLIBS) $(OUTPUT_OPTION)
+bin/stanc$(EXE) : $(shell find $(STANC3)/src/ -type f -name '*.ml*') $(STANC#)
+	cd $(STANC3) && echo "--- Rebuilding stanc ---\n" && dune build @install
+	cp $(STANC3)/_build/default/src/stanc/stanc.exe $@
 
 $(patsubst %.cpp,%.d,$(STANC_TEMPLATE_INSTANTIATION_CPP)) : DEPTARGETS = -MT $(patsubst stan/src/stan/lang/%.d,bin/cmdstan/lang/%.o,$@) -MT $@
 

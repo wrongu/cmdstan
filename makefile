@@ -20,7 +20,7 @@ help:
 
 -include $(HOME)/.config/stan/make.local  # user-defined variables
 -include make/local                       # user-defined variables
-
+STANC3 ?= stanc3
 STAN ?= stan/
 MATH ?= $(STAN)lib/stan_math/
 ifeq ($(OS),Windows_NT)
