@@ -30,7 +30,7 @@ endif
 O_STANC ?= 0
 INC_FIRST ?= -I src -I $(STAN)src -I $(RAPIDJSON)
 USER_HEADER ?= $(dir $<)user_header.hpp
-
+STANC3 ?= src/stanc3
 
 -include $(MATH)make/compiler_flags
 -include $(MATH)make/dependencies
