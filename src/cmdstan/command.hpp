@@ -8,6 +8,7 @@
 #include <cmdstan/arguments/arg_random.hpp>
 #include <cmdstan/arguments/argument_parser.hpp>
 #include <cmdstan/io/json/json_data.hpp>
+#include <cmdstan/write_compile_info.hpp>
 #include <cmdstan/write_model.hpp>
 #include <cmdstan/write_opencl_device.hpp>
 #include <cmdstan/write_parallel_info.hpp>
@@ -60,6 +61,7 @@
 // forward declaration for function defined in another translation unit
 stan::model::model_base &new_model(stan::io::var_context &data_context,
                                    unsigned int seed, std::ostream *msg_stream);
+stan::model::model_base &new_model();
 
 namespace cmdstan {
 
@@ -123,6 +125,13 @@ int command(int argc, const char *argv[]) {
   }
   if (parser.help_printed())
     return err_code;
+  
+  if (parser.compile_info_requested()) {
+    stan::model::model_base &model = new_model();
+    std::vector<std::string> compile_info = model.model_compile_info();
+    write_compile_info(info, compile_info);
+    return stan::services::error_codes::OK;
+  }
 
   arg_seed *random_arg
       = dynamic_cast<arg_seed *>(parser.arg("random")->arg("seed"));

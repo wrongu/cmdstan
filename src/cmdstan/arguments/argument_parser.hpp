@@ -13,7 +13,7 @@ namespace cmdstan {
 class argument_parser {
  public:
   explicit argument_parser(std::vector<argument *> &valid_args)
-      : _arguments(valid_args), _help_flag(false), _method_flag(false) {
+      : _arguments(valid_args), _help_flag(false), _method_flag(false), _compile_info_flag(false) {
     _arguments.insert(_arguments.begin(), new arg_method());
   }
 
@@ -86,6 +86,10 @@ class argument_parser {
         print_help(info, true);
         _help_flag |= true;
         args.clear();
+      } else if (cat_name == "compile-info") {
+        _compile_info_flag |= true;
+        args.clear();
+        return stan::services::error_codes::OK;
       }
 
       if (_help_flag) {
@@ -196,6 +200,8 @@ class argument_parser {
 
   bool help_printed() { return _help_flag; }
 
+  bool compile_info_requested() { return _compile_info_flag; }
+
  protected:
   std::vector<argument *> &_arguments;
 
@@ -206,6 +212,7 @@ class argument_parser {
 
   bool _help_flag;
   bool _method_flag;
+  bool _compile_info_flag;
 };
 
 }  // namespace cmdstan
