@@ -14,6 +14,7 @@ class CmdStan : public testing::Test {
   void SetUp() {
     model_path = {"src", "test", "test-models", "gq_model"};
     data_file_path = {"src", "test", "test-models", "gq_model.data.json"};
+    model_path_1 = {"src", "test", "test-models", "gq_model_1"};
     model_path_2 = {"src", "test", "test-models", "test_model"};
     model_path_non_scalar_gq = {"src", "test", "test-models", "gq_non_scalar"};
     output_file_path = {"/dev", "null"};
@@ -29,6 +30,7 @@ class CmdStan : public testing::Test {
 
   std::vector<std::string> model_path;
   std::vector<std::string> data_file_path;
+  std::vector<std::string> model_path_1;
   std::vector<std::string> model_path_2;
   std::vector<std::string> model_path_non_scalar_gq;
   std::vector<std::string> output_file_path;
@@ -119,4 +121,16 @@ TEST_F(CmdStan, generate_quantities_csv_conflict) {
   std::string cmd = ss.str();
   run_command_output out = run_command(cmd);
   ASSERT_TRUE(out.hasError);
+}
+
+TEST_F(CmdStan, generate_quantities_csv_param_names_order) {
+  std::stringstream ss;
+  ss << convert_model_path(model_path_1)
+     << " data file=" << convert_model_path(data_file_path)
+     << " output file=" << convert_model_path(default_file_path)
+     << " method=generate_quantities fitted_params="
+     << convert_model_path(default_file_path);  // << " 2>&1";
+  std::string cmd = ss.str();
+  run_command_output out = run_command(cmd);
+  ASSERT_FALSE(out.hasError);
 }
