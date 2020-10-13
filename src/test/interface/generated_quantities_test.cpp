@@ -14,12 +14,13 @@ class CmdStan : public testing::Test {
   void SetUp() {
     model_path = {"src", "test", "test-models", "gq_model"};
     data_file_path = {"src", "test", "test-models", "gq_model.data.json"};
-    model_path_1 = {"src", "test", "test-models", "gq_model_1"};
     model_path_2 = {"src", "test", "test-models", "test_model"};
     model_path_non_scalar_gq = {"src", "test", "test-models", "gq_non_scalar"};
     output_file_path = {"/dev", "null"};
     fitted_params_file_path
         = {"src", "test", "test-models", "gq_model_output.csv"};
+    fitted_params_file_path_1
+        = {"src", "test", "test-models", "gq_model_output_1.csv"};
     fitted_params_file_path_2
         = {"src", "test", "test-models", "test_model_output.csv"};
     fitted_params_file_path_empty = {"src", "test", "test-models", "empty.csv"};
@@ -30,11 +31,11 @@ class CmdStan : public testing::Test {
 
   std::vector<std::string> model_path;
   std::vector<std::string> data_file_path;
-  std::vector<std::string> model_path_1;
   std::vector<std::string> model_path_2;
   std::vector<std::string> model_path_non_scalar_gq;
   std::vector<std::string> output_file_path;
   std::vector<std::string> fitted_params_file_path;
+  std::vector<std::string> fitted_params_file_path_1;
   std::vector<std::string> fitted_params_file_path_2;
   std::vector<std::string> fitted_params_file_path_empty;
   std::vector<std::string> fitted_params_non_scalar_gq;
@@ -125,11 +126,12 @@ TEST_F(CmdStan, generate_quantities_csv_conflict) {
 
 TEST_F(CmdStan, generate_quantities_csv_param_names_order) {
   std::stringstream ss;
-  ss << convert_model_path(model_path_1)
+  ss << convert_model_path(model_path)
      << " data file=" << convert_model_path(data_file_path)
      << " output file=" << convert_model_path(default_file_path)
      << " method=generate_quantities fitted_params="
-     << convert_model_path(default_file_path);  // << " 2>&1";
+     << convert_model_path(fitted_params_file_path_1) << " 2>&1";
+  std::cout << ss.str() << std::endl;
   std::string cmd = ss.str();
   run_command_output out = run_command(cmd);
   ASSERT_FALSE(out.hasError);

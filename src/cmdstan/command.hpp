@@ -48,6 +48,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include <stan/math/prim/core/init_threadpool_tbb.hpp>
 
@@ -250,7 +251,7 @@ int command(int argc, const char *argv[]) {
     model.constrained_param_names(param_names, false, false);
     size_t num_cols = param_names.size();
     size_t num_rows = fitted_params.metadata.num_samples;
-    // check that all parameter names are in sample, in order
+    // check that all parameter names are in sample
     if (num_cols + hmc_fixed_cols > fitted_params.header.size()) {
       std::stringstream msg;
       msg << "Mismatch between model and fitted_parameters csv file \"" << fname
@@ -258,14 +259,18 @@ int command(int argc, const char *argv[]) {
       throw std::invalid_argument(msg.str());
     }
     for (size_t i = 0; i < num_cols; ++i) {
-      if (param_names[i].compare(fitted_params.header[i + hmc_fixed_cols])
-          != 0) {
+      if (std::find(fitted_params.header.begin(),
+                    fitted_params.header.end(),
+                    param_names[i]) == fitted_params.header.end()) {
         std::stringstream msg;
         msg << "Mismatch between model and fitted_parameters csv file \""
-            << fname << "\"" << std::endl;
+            << fname << "\", missing parameter: "
+            << param_names[i] << "." << std::endl;
         throw std::invalid_argument(msg.str());
       }
     }
+    // cannot use block - need to assemble matrix column by column
+
     return_code = stan::services::standalone_generate(
         model,
         fitted_params.samples.block(0, hmc_fixed_cols, num_rows, num_cols),

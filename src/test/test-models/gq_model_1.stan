@@ -8,6 +8,8 @@ parameters {
   real<lower=0,upper=1> theta;
 } 
 model {
+  mu1 ~ normal(0, 10);
+  mu2 ~ normal(0, 1);
   theta ~ beta(1,1);
   y ~ bernoulli(theta);
 }
