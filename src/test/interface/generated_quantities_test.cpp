@@ -21,6 +21,8 @@ class CmdStan : public testing::Test {
         = {"src", "test", "test-models", "gq_model_output.csv"};
     fitted_params_file_path_2
         = {"src", "test", "test-models", "test_model_output.csv"};
+    fitted_params_file_path_3
+        = {"src", "test", "test-models", "gq_model_output_minimal.csv"};
     fitted_params_file_path_empty = {"src", "test", "test-models", "empty.csv"};
     fitted_params_non_scalar_gq
         = {"src", "test", "test-models", "gq_non_scalar.csv"};
@@ -34,6 +36,7 @@ class CmdStan : public testing::Test {
   std::vector<std::string> output_file_path;
   std::vector<std::string> fitted_params_file_path;
   std::vector<std::string> fitted_params_file_path_2;
+  std::vector<std::string> fitted_params_file_path_3;
   std::vector<std::string> fitted_params_file_path_empty;
   std::vector<std::string> fitted_params_non_scalar_gq;
   std::vector<std::string> default_file_path;
@@ -46,6 +49,18 @@ TEST_F(CmdStan, generate_quantities_good) {
      << " output file=" << convert_model_path(output_file_path)
      << " method=generate_quantities fitted_params="
      << convert_model_path(fitted_params_file_path);
+  std::string cmd = ss.str();
+  run_command_output out = run_command(cmd);
+  ASSERT_FALSE(out.hasError);
+}
+
+TEST_F(CmdStan, generate_quantities_minimal_good) {
+  std::stringstream ss;
+  ss << convert_model_path(model_path)
+     << " data file=" << convert_model_path(data_file_path)
+     << " output file=" << convert_model_path(output_file_path)
+     << " method=generate_quantities fitted_params="
+     << convert_model_path(fitted_params_file_path_3);
   std::string cmd = ss.str();
   run_command_output out = run_command(cmd);
   ASSERT_FALSE(out.hasError);

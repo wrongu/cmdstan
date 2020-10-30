@@ -48,6 +48,7 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include <boost/algorithm/string/predicate.hpp>
 
 #include <stan/math/prim/core/init_threadpool_tbb.hpp>
 
@@ -90,8 +91,6 @@ std::shared_ptr<stan::io::var_context> get_var_context(const std::string file) {
       = std::make_shared<stan::io::dump>(var_context);
   return result;
 }
-
-static int hmc_fixed_cols = 7;  // hmc sampler outputs columns __lp + 6
 
 int command(int argc, const char *argv[]) {
   stan::callbacks::stream_writer info(std::cout);
@@ -252,19 +251,23 @@ int command(int argc, const char *argv[]) {
                                             fitted_params.timing, &msg);
     stream.close();
 
+    // check that all parameter names are in sample, in order
     std::vector<std::string> param_names;
     model.constrained_param_names(param_names, false, false);
     size_t num_cols = param_names.size();
-    size_t num_rows = fitted_params.metadata.num_samples;
-    // check that all parameter names are in sample, in order
-    if (num_cols + hmc_fixed_cols > fitted_params.header.size()) {
+    size_t offset = 0;
+    for (size_t i = 0; i < fitted_params.header.size(); ++i) {
+      if (boost::ends_with(fitted_params.header[i], "__"))
+	offset++;
+    }
+    if (num_cols + offset > fitted_params.header.size()) {
       std::stringstream msg;
       msg << "Mismatch between model and fitted_parameters csv file \"" << fname
           << "\"" << std::endl;
       throw std::invalid_argument(msg.str());
     }
     for (size_t i = 0; i < num_cols; ++i) {
-      if (param_names[i].compare(fitted_params.header[i + hmc_fixed_cols])
+      if (param_names[i].compare(fitted_params.header[i + offset])
           != 0) {
         std::stringstream msg;
         msg << "Mismatch between model and fitted_parameters csv file \""
@@ -272,9 +275,11 @@ int command(int argc, const char *argv[]) {
         throw std::invalid_argument(msg.str());
       }
     }
+
     return_code = stan::services::standalone_generate(
         model,
-        fitted_params.samples.block(0, hmc_fixed_cols, num_rows, num_cols),
+        fitted_params.samples.block(0, offset,
+				    fitted_params.samples.rows(), num_cols),
         random_seed, interrupt, logger, sample_writer);
   } else if (parser.arg("method")->arg("diagnose")) {
     list_argument *test = dynamic_cast<list_argument *>(
