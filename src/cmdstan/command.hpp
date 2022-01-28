@@ -1161,7 +1161,6 @@ int command(int argc, const char *argv[]) {
     double stepsize = 1.0;  // default
     double stepsize_jitter = 0.0;  // default
     int max_depth = 10;  // default
-    int grad_samples = 50;
     int kl_samples = 50;
     double lambda = 2.0;
 
@@ -1170,7 +1169,7 @@ int command(int argc, const char *argv[]) {
         // NUTS-related args
         num_warmup, num_samples, num_thin, save_warmup, refresh, stepsize, stepsize_jitter, max_depth,
         // ADVI-related args
-        grad_samples, kl_samples, lambda,
+        kl_samples, lambda,
         // Common args
         interrupt, logger, init_writers[0], sample_writers[0], diagnostic_writers[0]);
   }
