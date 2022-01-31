@@ -336,7 +336,6 @@ int command(int argc, const char *argv[]) {
   }
   stan::math::init_threadpool_tbb(num_threads);
 
-  // TODO parse number of chains for ISVI method which is not "sample"
   unsigned int num_chains = 1;
   auto user_method = parser.arg("method");
   // num_chains > 1 is only supported in diag_e and dense_e of hmc
@@ -365,6 +364,12 @@ int command(int argc, const char *argv[]) {
         }
       }
     }
+  }
+  // Multi-chain option is available to 'isvi' as well as 'sample' method. Need
+  // to parse this here so that the correct number of writers is initialized.
+  if (user_method->arg("isvi")) {
+    num_chains
+        = get_arg_val<int_argument>(parser, "method", "isvi", "num_chains");
   }
   arg_seed *random_arg
       = dynamic_cast<arg_seed *>(parser.arg("random")->arg("seed"));
@@ -1151,25 +1156,32 @@ int command(int argc, const char *argv[]) {
           logger, init_writers[0], sample_writers[0], diagnostic_writers[0]);
     }
   } else if (user_method->arg("isvi")) {
-    // TODO - CREATE ARGUMENTS FOR THIS. THIS IS TOTALLY EXPERIMENTAL NOW AND JUST
-    // RUNNING WITH SOME DEFAULTS HERE
-    int num_warmup = 100;
-    int num_samples = 500;
-    int num_thin = 1;
-    bool save_warmup = true;
-    int refresh = 100;  // default
-    double stepsize = 1.0;  // default
-    double stepsize_jitter = 0.0;  // default
-    int max_depth = 10;  // default
-    int kl_samples = 50;
-    double lambda = 2.0;
+    auto isvi_args = parser.arg("method")->arg("isvi");
+    int num_warmup
+        = dynamic_cast<int_argument *>(isvi_args->arg("num_warmup"))->value();
+    int num_samples
+        = dynamic_cast<int_argument *>(isvi_args->arg("num_samples"))->value();
+    int num_thin
+        = dynamic_cast<int_argument *>(isvi_args->arg("thin"))->value();
+    bool save_warmup
+        = dynamic_cast<bool_argument *>(isvi_args->arg("save_warmup"))->value();
+    double stepsize
+        = dynamic_cast<real_argument *>(isvi_args->arg("stepsize"))->value();
+    double stepsize_jitter
+        = dynamic_cast<real_argument *>(isvi_args->arg("stepsize_jitter"))->value();
+    int max_depth
+        = dynamic_cast<int_argument *>(isvi_args->arg("max_depth"))->value();
+    int num_kl_samples
+        = dynamic_cast<int_argument *>(isvi_args->arg("num_kl_samples"))->value();
+    double lambda
+        = dynamic_cast<real_argument *>(isvi_args->arg("lambda"))->value();
 
     return_code = stan::services::experimental::isvi::nuts_diag_e_meanfield_q(
         model, *(init_contexts[0]), random_seed, id, init_radius,
         // NUTS-related args
         num_warmup, num_samples, num_thin, save_warmup, refresh, stepsize, stepsize_jitter, max_depth,
         // ADVI-related args
-        kl_samples, lambda,
+        num_kl_samples, lambda,
         // Common args
         interrupt, logger, init_writers[0], sample_writers[0], diagnostic_writers[0]);
   }
