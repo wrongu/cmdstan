@@ -365,12 +365,6 @@ int command(int argc, const char *argv[]) {
       }
     }
   }
-  // Multi-chain option is available to 'isvi' as well as 'sample' method. Need
-  // to parse this here so that the correct number of writers is initialized.
-  if (user_method->arg("isvi")) {
-    num_chains
-        = get_arg_val<int_argument>(parser, "method", "isvi", "num_chains");
-  }
   arg_seed *random_arg
       = dynamic_cast<arg_seed *>(parser.arg("random")->arg("seed"));
   unsigned int random_seed = random_arg->random_value();
@@ -1176,10 +1170,29 @@ int command(int argc, const char *argv[]) {
     double lambda
         = dynamic_cast<real_argument *>(isvi_args->arg("lambda"))->value();
 
+    auto adapt_args = isvi_args->arg("adapt");
+    double delta
+        = dynamic_cast<real_argument *>(adapt_args->arg("delta"))->value();
+    double gamma
+        = dynamic_cast<real_argument *>(adapt_args->arg("gamma"))->value();
+    double kappa
+        = dynamic_cast<real_argument *>(adapt_args->arg("kappa"))->value();
+    double t0 = dynamic_cast<real_argument *>(adapt_args->arg("t0"))->value();
+    unsigned int init_buffer
+        = dynamic_cast<u_int_argument *>(adapt_args->arg("init_buffer"))
+              ->value();
+    unsigned int term_buffer
+        = dynamic_cast<u_int_argument *>(adapt_args->arg("term_buffer"))
+              ->value();
+    unsigned int window
+        = dynamic_cast<u_int_argument *>(adapt_args->arg("window"))->value();
+
     return_code = stan::services::experimental::isvi::nuts_diag_e_meanfield_q(
         model, *(init_contexts[0]), random_seed, id, init_radius,
         // NUTS-related args
         num_warmup, num_samples, num_thin, save_warmup, refresh, stepsize, stepsize_jitter, max_depth,
+        // NUTS-adaptation args
+        delta, gamma, kappa, t0, init_buffer, term_buffer, window,
         // ADVI-related args
         num_kl_samples, lambda,
         // Common args
