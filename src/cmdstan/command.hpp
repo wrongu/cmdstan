@@ -1169,6 +1169,8 @@ int command(int argc, const char *argv[]) {
         = dynamic_cast<int_argument *>(isvi_args->arg("num_kl_samples"))->value();
     double lambda
         = dynamic_cast<real_argument *>(isvi_args->arg("lambda"))->value();
+    bool stochastic_kl
+        = dynamic_cast<bool_argument *>(isvi_args->arg("stochastic_kl"))->value();
 
     auto adapt_args = isvi_args->arg("adapt");
     double delta
@@ -1194,7 +1196,7 @@ int command(int argc, const char *argv[]) {
         // NUTS-adaptation args
         delta, gamma, kappa, t0, init_buffer, term_buffer, window,
         // ADVI-related args
-        num_kl_samples, lambda,
+        num_kl_samples, lambda, stochastic_kl,
         // Common args
         interrupt, logger, init_writers[0], sample_writers[0], diagnostic_writers[0]);
   }

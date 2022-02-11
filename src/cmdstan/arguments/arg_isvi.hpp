@@ -3,6 +3,7 @@
 
 #include <cmdstan/arguments/arg_adapt.hpp>
 #include <cmdstan/arguments/arg_lambda.hpp>
+#include <cmdstan/arguments/arg_stochastic_kl.hpp>
 #include <cmdstan/arguments/arg_max_depth.hpp>
 #include <cmdstan/arguments/arg_num_kl_samples.hpp>
 #include <cmdstan/arguments/arg_num_samples.hpp>
@@ -23,6 +24,7 @@ class arg_isvi : public categorical_argument {
 
     _subarguments.push_back(new arg_adapt());
     _subarguments.push_back(new arg_lambda());
+    _subarguments.push_back(new arg_stochastic_kl());
     _subarguments.push_back(new arg_num_samples());
     _subarguments.push_back(new arg_num_warmup());
     _subarguments.push_back(new arg_save_warmup());
