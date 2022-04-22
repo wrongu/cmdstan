@@ -1169,8 +1169,10 @@ int command(int argc, const char *argv[]) {
         = dynamic_cast<int_argument *>(isvi_args->arg("num_kl_samples"))->value();
     double lambda
         = dynamic_cast<real_argument *>(isvi_args->arg("lambda"))->value();
-    double clip_omega
-        = dynamic_cast<real_argument *>(isvi_args->arg("clip_omega"))->value();
+    double min_omega
+        = dynamic_cast<real_argument *>(isvi_args->arg("min_omega"))->value();
+    double max_omega
+        = dynamic_cast<real_argument *>(isvi_args->arg("max_omega"))->value();
     bool stochastic_kl
         = dynamic_cast<bool_argument *>(isvi_args->arg("stochastic_kl"))->value();
 
@@ -1198,7 +1200,7 @@ int command(int argc, const char *argv[]) {
         // NUTS-adaptation args
         delta, gamma, kappa, t0, init_buffer, term_buffer, window,
         // ADVI-related args
-        num_kl_samples, lambda, stochastic_kl, clip_omega,
+        num_kl_samples, lambda, stochastic_kl, min_omega, max_omega,
         // Common args
         interrupt, logger, init_writers[0], sample_writers[0], diagnostic_writers[0]);
   }
